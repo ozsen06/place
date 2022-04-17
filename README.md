@@ -1,97 +1,85 @@
-<div align="center">
+Reddit r/place Organizasyonunun Java bazlı yeniden yapımı
 
-![Pxls](https://i.imgur.com/K7j14LL.png)
+# Sunucu varsayılan olarak HTTPS desteklememektedir önerim nginx ile 4567 portunda çalışacak sunucuyu HTTPS ile proxilemenizdir
+# Örnek bir nginx proxy için config dosyası
+|
 
-![Java CI with Maven](https://img.shields.io/github/workflow/status/pxlsspace/Pxls/Java%20CI%20with%20Maven?style=flat-square)
-[![GitHub issues](https://img.shields.io/github/issues/pxlsspace/Pxls?style=flat-square)](https://github.com/pxlsspace/Pxls/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/pxlsspace/Pxls?style=flat-square)](https://github.com/pxlsspace/Pxls/pulls)
-[![GitHub contributors](https://img.shields.io/github/contributors/pxlsspace/Pxls?style=flat-square)](https://github.com/pxlsspace/Pxls/graphs/contributors)
-[![GitHub stars](https://img.shields.io/github/stars/pxlsspace/Pxls?style=flat-square)](https://github.com/pxlsspace/Pxls/stargazers)
+server {
+   listen 80;
+   return 301 https://example.yourdomain.com$request_uri;
+ }
 
-</div>
+server {
+   listen 443 ssl;
+   ssl_certificate  /etc/nginx/ssl/cert.crt;
+   ssl_certificate_key  /etc/nginx/ssl/key.key;
+   ssl_prefer_server_ciphers on;
 
-Pxls is a collaborative canvas where users can place one pixel from a limited palette at a time, inspired by Reddit's [r/Place][place] experiment.
+   location / {
+        proxy_pass http://localhost:4567;
 
-**Note:** A Docker image is available at [aneurinprice/docker-pxls.space][docker] and on [Docker Hub][dockerhub].
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_http_version 1.1;
+}
+}
 
-# Installation
+|
 
-Automatically built `pxls*.jar` files are available as artifacts on each push [here][actions].
+## Derlemek ("yapmak")
 
-## Building
-
-The following are required on the **build** system:
+Şu paketler **derlenecek** sisteminde gereklidir:
 
 * [JDK 16][jdk16]
 * [Apache Maven][maven]
 
-The following are required on the **target** system:
+Şu paketler **hedef** sisteminde gerekilidir:
 
 * [JRE 16][jdk16]
 * [Postgres][postgres]
 
-To build, run `mvn clean package` in the project root.
+Derlemek için proje klasöründe `mvn clean package` çalıştırın
 
-The built `pxls*.jar` file is available in `target/`.
+Derlenen `pxls*.jar` `target/` klasöründe bulunacak.
 
-## Running
+## Çalıştırmak
 
-Copy the built `pxls*.jar` along with the following (renamed) to the instance directory:
-
+Derlenen `pxls*.jar` dosyasını ve aşşağıdaki gibi yeniden adlandırılıan dosyaları proje klasörüne kopyalayın:
+#    [eski adı]       [yeni adı]
 * `reference.conf` (`pxls.conf`)
 * `roles-reference.conf` (`roles.conf`)
 * `palette-reference.conf` (`palette.conf`)
 
-Edit configuration files as necessary. The following `pxls.conf` keys MUST be configured from default for an instance to run:
+Gereğine göre konfigurasyon dosyalarını düzenleyin. `pxls.conf` Dosyası aşşağıdaki gibiKESİNLİKLE veritabanına erişim için ayarlanmalıdır
 
 * `database.user`
 * `database.pass`
 * `database.url`
 * `host`
-* `oauth` (necessary for any form of user authentication)
+* `oauth` (Kimlik doğrulama için gerekli)
     * [Reddit][redditapps], [Google][googleconsole], [Discord][discordapps], [VK][vkapps], and [Tumblr][tumblrapps] are current supported.
 
-Run with `java -jar pxls*.jar`
+`java -jar pxls*.jar` ile çalıştırın
 
-# Notes
+# Notlar
 
-* The server will start on port `4567` by default.
-* The instance has a [rudimentary console](#console-commands).
-* The configuration file uses [HOCON][hocon].
-* Unspecified configuration values will use built-in defaults from `resources/reference.conf`.
-* Automatic backups of `board.dat` are saved every five minutes to `backups/` in the configured storage directory, as well as before exiting (with `CTRL + C`).
-* The `Symbols` template style uses the reference palette configuration. See [here](developer.md#symbols-template-style) to modify or remove.
+* Sunucu varsayılan olarak `4567` portunda başlayacak
+* Konsol Komuylarına bakın [rudimentary console](#console-commands).
+* Konfig dosyaları [HOCON][hocon] kullanıyor .
+* `board.dat`'ın her 5dk alınan yedekleri `backups/` klasörüne yerleştirilmektedir, programdan ( `CTRL + C`) ile çıkılırken de.
 
-## Configuring CAPTCHA
 
-CAPTCHAs are disabled by default and must be configured to work.
-A [CAPTCHA key and secret][captcha] is needed and the type must be "Invisible reCAPTCHA".
-
-The `host` configuration key must be an approved domain on the reCAPTCHA admin panel. For local testing, this will likely be `localhost` (no port).
-
-An example CAPTCHA section could look like this:
-
-```hocon
-host: "example.com"
-
-captcha {
-  enabled: false
-  // Captcha will show rougly 1/<threshold> times
-  threshold: 5
-  key: "6LcedG4UAAAAAKA6l9BbRPvZ2vt3lTrCQwz8rfPe"
-  secret: "6LcedG4UAAAAAIXZcNFhnLKvTQwG1E8BzQQt_-MR"
-  maxPixels: 0
-  allTime: true
-}
-```
-
-# Console Commands
+# Konsol Komutları 
 
 Commands can be entered into the running instance through standard input.
 
 `exact |exact| (required description) [optional description] one-or-more... DEFAULT/possible/values {description}`
 
-## General
+## Genel
 
 | Command | Arguments | Description |
 | --- | --- | --- |
@@ -110,14 +98,14 @@ Commands can be entered into the running instance through standard input.
 | `up` | `(username) (packet)` | Broadcasts a raw JSON packet to all active connections from the user. |
 | `f` | `(faction ID) [delete/tag [new tag]/name [new name]]` | Prints information about the faction or changes the tag or name. |
 
-## Canvas Management
+## Kanvas Yönetimi
 
 | Command | Arguments | Description |
 | --- | --- | --- |
 | `nuke` | `(x1) (y1) (x2) (y2) (color)` | Replaces all pixels from (`x1`, `y1`) to (`x2`, `y2`) with the specified color index. |
 | `replace` | `(x1) (y1) (x2) (y2) (from color) (to color)` | Replaces all pixels from (`x1`, `y1`) to (`x2`, `y2`) matching the `from color` index with the `to color` index. |
 
-## User Management
+## Kullanıcı Yönetimi
 
 | Command | Arguments | Description |
 | --- | --- | --- |
