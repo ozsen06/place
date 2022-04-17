@@ -4,29 +4,29 @@ Reddit r/place Organizasyonunun Java bazlı yeniden yapımı
 # Örnek bir nginx proxy için config dosyası
 
 
-server {
-   listen 80;
-   return 301 https://example.yourdomain.com$request_uri;
- }
-
-server {
-   listen 443 ssl;
-   ssl_certificate  /etc/nginx/ssl/cert.crt;
-   ssl_certificate_key  /etc/nginx/ssl/key.key;
-   ssl_prefer_server_ciphers on;
-
-   location / {
-        proxy_pass http://localhost:4567;
-
-        proxy_set_header        Host $host;
-        proxy_set_header        X-Real-IP $remote_addr;
-        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header        X-Forwarded-Proto $scheme;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "Upgrade";
-        proxy_http_version 1.1;
-}
-}
+`server {`
+`   listen 80;`
+`   return 301 https://example.yourdomain.com$request_uri;`
+` }`
+` `
+`server {`
+`   listen 443 ssl;`
+`   ssl_certificate  /etc/nginx/ssl/cert.crt;`
+`   ssl_certificate_key  /etc/nginx/ssl/key.key;`
+`   ssl_prefer_server_ciphers on;`
+` `
+`   location / {`
+`        proxy_pass http://localhost:4567;`
+` `
+`        proxy_set_header        Host $host;`
+`        proxy_set_header        X-Real-IP $remote_addr;`
+`        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;`
+`        proxy_set_header        X-Forwarded-Proto $scheme;`
+`        proxy_set_header Upgrade $http_upgrade;`
+`        proxy_set_header Connection "Upgrade";`
+`        proxy_http_version 1.1;`
+`}`
+`}`
 
 
 ## Derlemek ("yapmak")
