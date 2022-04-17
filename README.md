@@ -1,7 +1,7 @@
-Reddit r/place Organizasyonunun Java bazlı yeniden yapımı
+# Reddit r/place Organizasyonunun Java bazlı yeniden yapımı
 
-# Sunucu varsayılan olarak HTTPS desteklememektedir önerim nginx ile 4567 portunda çalışacak sunucuyu HTTPS ile proxilemenizdir
-# Örnek bir nginx proxy için config dosyası
+Sunucu varsayılan olarak HTTPS desteklememektedir önerim nginx ile 4567 portunda çalışacak sunucuyu HTTPS ile proxilemenizdir
+Örnek bir nginx proxy için config dosyası
 
 
 `server {`
