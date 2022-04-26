@@ -80,7 +80,7 @@ Gereğine göre konfigurasyon dosyalarını düzenleyin. `pxls.conf` Dosyası a�
 
 ## Genel
 
-| Command | Arguments | Description |
+| Komut | Argüman | Açıklama |
 | --- | --- | --- |
 | `reload` || `pxls.conf` and `roles.conf`, Dosyalarını yeniden yükler. |
 | `save` || Save alır. |
